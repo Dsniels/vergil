@@ -1,0 +1,27 @@
+<!-- @format -->
+
+
+<div>
+	@for (item of messages; track $index) {
+	<div>
+		<markdown [data]="item"></markdown>
+	</div>
+	}
+</div>
+
+<div>
+	<markdown [data]="response()"></markdown>
+</div>
+
+<div>
+	<form [formGroup]="formGroup" (ngSubmit)="sendMessage()">
+		<textarea
+			[(ngModel)]="question"
+			rows="10"
+			cols="50"
+			[formControlName]="'question'">
+		</textarea
+		>
+        <button nz-button type="submit">send</button>
+	</form>
+</div>
