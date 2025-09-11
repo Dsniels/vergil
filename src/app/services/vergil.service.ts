@@ -25,10 +25,13 @@ export class VergilService implements OnInit {
 
 	async start() {
 		this.connection.on("ReceiveLog", (args) => {
-			console.log(args);
 			this.log$.update((v) => (v += args));
 		});
 		this.connection.start().then(() => console.log("Connected"));
+	}
+
+	onLog(callback: (args: any[]) => void) {
+		return this.connection.on("ReceiveLog", callback);
 	}
 
 	chat(message: Message): IStreamResult<string> {
