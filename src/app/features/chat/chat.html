@@ -1,27 +1,37 @@
 <!-- @format -->
-
-
-<div>
-	@for (item of messages; track $index) {
+<div class="flex flex-row p-2">
 	<div>
-		<markdown [data]="item"></markdown>
+		<div>
+			@for (item of messages; track $index) {
+			<div>
+				<nz-card style="width: 300px">
+					<markdown [data]="item"></markdown>
+				</nz-card>
+			</div>
+			}
+		</div>
+
+		<div>
+			<nz-card style="width: 300px">
+				<markdown [data]="response()"></markdown>
+			</nz-card>
+		</div>
 	</div>
-	}
+	<div>
+		<p>
+			Logs:
+		</p>
+		<nz-code-editor class="editor"  [nzEditorOption]="{ language: 'typescript' }" [nzOriginalText]="log()"> code</nz-code-editor>
+	</div>
 </div>
-
-<div>
-	<markdown [data]="response()"></markdown>
-</div>
-
 <div>
 	<form [formGroup]="formGroup" (ngSubmit)="sendMessage()">
-		<textarea
+		<input
+			nz-input
+			nzSize="large"
+			
 			[(ngModel)]="question"
-			rows="10"
-			cols="50"
-			[formControlName]="'question'">
-		</textarea
-		>
-        <button nz-button type="submit">send</button>
+			[formControlName]="'question'" />
+		<button nz-button type="submit">send</button>
 	</form>
 </div>

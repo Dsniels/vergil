@@ -1,6 +1,6 @@
 /** @format */
 
-import {Component, OnInit, signal, Signal} from "@angular/core";
+import {Component, OnInit, signal} from "@angular/core";
 import {VergilService} from "../../services/vergil.service";
 import {BaseComponent} from "../../common/base-component/base-component";
 import {CommonModule} from "@angular/common";
@@ -12,17 +12,27 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
+import {
+	NzCodeEditorModule,
+	NzCodeEditorComponent,
+} from "ng-zorro-antd/code-editor";
 import {NzButtonModule} from "ng-zorro-antd/button";
+import {NzCardComponent} from "ng-zorro-antd/card";
+import {NzInputModule} from "ng-zorro-antd/input";
 
 @Component({
 	selector: "app-chat",
 	imports: [
+		NzCardComponent,
 		NzButtonModule,
+		NzCodeEditorModule,
+		NzInputModule,
 		FormsModule,
 		ReactiveFormsModule,
 		CommonModule,
 		MarkdownModule,
 		MarkdownComponent,
+		NzCodeEditorComponent,
 	],
 	templateUrl: "./chat.html",
 	styleUrl: "./chat.css",
@@ -30,17 +40,24 @@ import {NzButtonModule} from "ng-zorro-antd/button";
 export class Chat extends BaseComponent implements OnInit {
 	messages!: string[];
 	response = signal<string>("");
+	log = signal<string>("logs\n");
 	question = "";
 	formGroup!: FormGroup;
 	constructor(private vergilService: VergilService) {
 		super();
+		this.vergilService.onLog((v) => {
+			console.log(v);
+			this.log.update((s) => (s += v));
+		});
 		this.vergilService.start();
+
 		this.messages = [];
 	}
 
 	sendMessage() {
 		let message = this.formGroup.getRawValue();
 		this.messages.push(message.question);
+		this.formGroup.reset();
 		this.vergilService.chat(message).subscribe({
 			next: (t) => {
 				this.response.update((v) => (v += t));
