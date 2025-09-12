@@ -1,6 +1,13 @@
 /** @format */
 
-import {Component, OnInit, signal} from "@angular/core";
+import {
+	AfterViewChecked,
+	Component,
+	ElementRef,
+	OnInit,
+	signal,
+	ViewChild,
+} from "@angular/core";
 import {VergilService} from "../../services/vergil.service";
 import {BaseComponent} from "../../common/base-component/base-component";
 import {CommonModule} from "@angular/common";
@@ -12,10 +19,7 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import {
-	NzCodeEditorModule,
-	NzCodeEditorComponent,
-} from "ng-zorro-antd/code-editor";
+import {NzCodeEditorModule} from "ng-zorro-antd/code-editor";
 import {NzButtonModule} from "ng-zorro-antd/button";
 import {NzCardComponent} from "ng-zorro-antd/card";
 import {NzInputModule} from "ng-zorro-antd/input";
@@ -32,26 +36,33 @@ import {NzInputModule} from "ng-zorro-antd/input";
 		CommonModule,
 		MarkdownModule,
 		MarkdownComponent,
-		NzCodeEditorComponent,
 	],
 	templateUrl: "./chat.html",
 	styleUrl: "./chat.css",
 })
-export class Chat extends BaseComponent implements OnInit {
+export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 	messages!: string[];
 	response = signal<string>("");
 	log = signal<string>("logs\n");
 	question = "";
 	formGroup!: FormGroup;
+	@ViewChild("chat") container!: ElementRef;
 	constructor(private vergilService: VergilService) {
 		super();
 		this.vergilService.onLog((v) => {
 			console.log(v);
-			this.log.update((s) => (s += v));
+			this.log.update((s) => (s += v + "\n"));
 		});
 		this.vergilService.start();
 
 		this.messages = [];
+	}
+	ngAfterViewChecked(): void {
+		this.autoScroll();
+	}
+	autoScroll() {
+		this.container.nativeElement.scrollTop =
+			this.container.nativeElement.scrollHeight;
 	}
 
 	sendMessage() {

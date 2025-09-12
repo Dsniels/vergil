@@ -1,37 +1,55 @@
 <!-- @format -->
-<div class="flex flex-row p-2">
-	<div>
-		<div>
-			@for (item of messages; track $index) {
-			<div>
-				<nz-card style="width: 300px">
-					<markdown [data]="item"></markdown>
-				</nz-card>
-			</div>
-			}
-		</div>
+<section class="flex justify-center items-center content-center w-full h-full bg-gray-400 ">
 
-		<div>
-			<nz-card style="width: 300px">
-				<markdown [data]="response()"></markdown>
-			</nz-card>
+<div
+	class="chat-container flex w-full h-full content-center items-center justify-center  ">
+	<nz-card class="flex w-full h-full bg-gray-800">
+		<ng-container [ngTemplateOutlet]="container"> </ng-container>
+	</nz-card>
+</div>
+</section>
+
+<ng-template #container>
+	<div class="flex flex-row p-2">
+		<div #chat class="messages-container bg-gray-700">
+			<div class="messages-wrapper">
+				@for (item of messages; track $index) {
+				<div class="message">
+					<nz-card>
+						<markdown [data]="item"></markdown>
+					</nz-card>
+				</div>
+				} @if (response()) {
+				<div class="message">
+					<nz-card>
+						<markdown [data]="response()"></markdown>
+					</nz-card>
+				</div>
+				}
+			</div>
+		</div>
+		<div class="w-96">
+			<textarea
+				nzSize="large"
+				class="w-full h-96"
+				nz-input
+				[value]="log()"
+				disabled></textarea>
 		</div>
 	</div>
-	<div>
-		<p>
-			Logs:
-		</p>
-		<nz-code-editor class="editor"  [nzEditorOption]="{ language: 'typescript' }" [nzOriginalText]="log()"> code</nz-code-editor>
+	<div class="mt-4">
+		<form
+			[formGroup]="formGroup"
+			(ngSubmit)="sendMessage()"
+			class="flex gap-2">
+			<input
+				nz-input
+				nzSize="large"
+				[(ngModel)]="question"
+				[formControlName]="'question'"
+				class="flex-1"
+				placeholder="Escribe tu mensaje..." />
+			<button nz-button type="submit" nzType="primary">Enviar</button>
+		</form>
 	</div>
-</div>
-<div>
-	<form [formGroup]="formGroup" (ngSubmit)="sendMessage()">
-		<input
-			nz-input
-			nzSize="large"
-			
-			[(ngModel)]="question"
-			[formControlName]="'question'" />
-		<button nz-button type="submit">send</button>
-	</form>
-</div>
+</ng-template>
