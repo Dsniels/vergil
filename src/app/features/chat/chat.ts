@@ -15,7 +15,6 @@ import {MarkdownComponent, MarkdownModule} from "ngx-markdown";
 import {
 	FormControl,
 	FormGroup,
-	FormsModule,
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
@@ -31,7 +30,6 @@ import {NzInputModule} from "ng-zorro-antd/input";
 		NzButtonModule,
 		NzCodeEditorModule,
 		NzInputModule,
-		FormsModule,
 		ReactiveFormsModule,
 		CommonModule,
 		MarkdownModule,
@@ -44,8 +42,7 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 	messages!: string[];
 	response = signal<string>("");
 	log = signal<string>("logs\n");
-	question = "";
-	formGroup!: FormGroup;
+	formGroup!: FormGroup<{content: FormControl<string>}>;
 	@ViewChild("chat") container!: ElementRef;
 	constructor(private vergilService: VergilService) {
 		super();
@@ -66,10 +63,17 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 	}
 
 	sendMessage() {
-		let message = this.formGroup.getRawValue();
-		this.messages.push(message.question);
-		this.formGroup.reset();
-		this.vergilService.chat(message).subscribe({
+		if (this.formGroup.invalid) {
+			this.formGroup.markAllAsTouched();
+			return;
+		}
+
+		const raw = this.formGroup.getRawValue();
+		this.messages.push(raw.content);
+		this.formGroup.reset({content: ""});
+		this.vergilService
+			.chat({content: raw.content, role: 0})
+			.subscribe({
 			next: (t) => {
 				this.response.update((v) => (v += t));
 			},
@@ -80,12 +84,15 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 			error: (err) => {
 				console.log(err);
 			},
-		});
+			});
 	}
 
 	ngOnInit(): void {
-		this.formGroup = new FormGroup<{question: FormControl}>({
-			question: new FormControl("", Validators.required),
+		this.formGroup = new FormGroup<{content: FormControl<string>}>({
+			content: new FormControl("", {
+				nonNullable: true,
+				validators: [Validators.required],
+			}),
 		});
 	}
 }

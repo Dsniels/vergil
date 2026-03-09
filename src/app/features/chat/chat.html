@@ -45,8 +45,7 @@
 			<input
 				nz-input
 				nzSize="large"
-				[(ngModel)]="question"
-				[formControlName]="'question'"
+				formControlName="content"
 				class="flex-1"
 				placeholder="Escribe tu mensaje..." />
 			<button nz-button type="submit" nzType="primary">Enviar</button>

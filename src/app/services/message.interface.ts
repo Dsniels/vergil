@@ -1,3 +1,6 @@
+/** @format */
+
 export type Message = {
-    Question: string;
-}
+	content: string;
+	role: number;
+};
