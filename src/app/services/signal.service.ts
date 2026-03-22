@@ -7,21 +7,24 @@ import {
 	IStreamResult,
 } from "@microsoft/signalr";
 import {Message} from "./message.interface";
+import {FileTransfer} from "./fileTransfer.interface";
+import {FiletransferService} from "./filetransfer.service";
 
 @Injectable({
 	providedIn: "root",
 })
-export class VergilService implements OnInit {
+export class SignalRService implements OnInit {
 	connection!: HubConnection;
 	log$ = signal<string>("");
 
-	constructor() {
+	constructor(private fileTransferSvc: FiletransferService) {}
+
+	ngOnInit(): void {
 		this.connection = new HubConnectionBuilder()
 			.withUrl("http://localhost:5233/assistant")
 			.withAutomaticReconnect()
 			.build();
 	}
-	ngOnInit(): void {}
 
 	async start() {
 		this.connection.on("ReceiveLog", (args) => {
@@ -36,5 +39,11 @@ export class VergilService implements OnInit {
 
 	chat(message: Message): IStreamResult<string> {
 		return this.connection.stream("AskSomething", message);
+	}
+
+	onFileDownload() {
+		return this.connection.on("ReceiveFile", (args: FileTransfer) =>
+			this.fileTransferSvc.downloadFile(args),
+		);
 	}
 }

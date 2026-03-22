@@ -8,7 +8,7 @@ import {
 	signal,
 	ViewChild,
 } from "@angular/core";
-import {VergilService} from "../../services/vergil.service";
+import {SignalRService} from "../../services/signal.service";
 import {BaseComponent} from "../../common/base-component/base-component";
 import {CommonModule} from "@angular/common";
 import {MarkdownComponent, MarkdownModule} from "ngx-markdown";
@@ -44,19 +44,21 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 	log = signal<string>("logs\n");
 	formGroup!: FormGroup<{content: FormControl<string>}>;
 	@ViewChild("chat") container!: ElementRef;
-	constructor(private vergilService: VergilService) {
+	constructor(private sinalRSvc: SignalRService) {
 		super();
-		this.vergilService.onLog((v) => {
+		this.sinalRSvc.onLog((v) => {
 			console.log(v);
 			this.log.update((s) => (s += v + "\n"));
 		});
-		this.vergilService.start();
+		this.sinalRSvc.start();
 
 		this.messages = [];
 	}
+
 	ngAfterViewChecked(): void {
 		this.autoScroll();
 	}
+
 	autoScroll() {
 		this.container.nativeElement.scrollTop =
 			this.container.nativeElement.scrollHeight;
@@ -67,13 +69,10 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 			this.formGroup.markAllAsTouched();
 			return;
 		}
-
 		const raw = this.formGroup.getRawValue();
 		this.messages.push(raw.content);
 		this.formGroup.reset({content: ""});
-		this.vergilService
-			.chat({content: raw.content, role: 0})
-			.subscribe({
+		this.sinalRSvc.chat({content: raw.content, role: 0}).subscribe({
 			next: (t) => {
 				this.response.update((v) => (v += t));
 			},
@@ -84,7 +83,7 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 			error: (err) => {
 				console.log(err);
 			},
-			});
+		});
 	}
 
 	ngOnInit(): void {
