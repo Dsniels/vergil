@@ -13,13 +13,11 @@ import {FiletransferService} from "./filetransfer.service";
 @Injectable({
 	providedIn: "root",
 })
-export class SignalRService implements OnInit {
+export class SignalRService {
 	connection!: HubConnection;
 	log$ = signal<string>("");
 
-	constructor(private fileTransferSvc: FiletransferService) {}
-
-	ngOnInit(): void {
+	constructor(private fileTransferSvc: FiletransferService) {
 		this.connection = new HubConnectionBuilder()
 			.withUrl("http://localhost:5233/assistant")
 			.withAutomaticReconnect()
@@ -27,9 +25,7 @@ export class SignalRService implements OnInit {
 	}
 
 	async start() {
-		this.connection.on("ReceiveLog", (args) => {
-			this.log$.update((v) => (v += args));
-		});
+		this.onFileDownload();
 		this.connection.start().then(() => console.log("Connected"));
 	}
 

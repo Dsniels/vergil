@@ -46,9 +46,9 @@ export class Chat extends BaseComponent implements OnInit, AfterViewChecked {
 	@ViewChild("chat") container!: ElementRef;
 	constructor(private sinalRSvc: SignalRService) {
 		super();
-		this.sinalRSvc.onLog((v) => {
+		this.sinalRSvc.onLog((v:any) => {
 			console.log(v);
-			this.log.update((s) => (s += v + "\n"));
+			this.log.update((s) => (s += v.log + "\n"));
 		});
 		this.sinalRSvc.start();
 
